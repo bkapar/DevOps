@@ -21,7 +21,7 @@ sudo apt-get install jenkins
 sudo apt-get install apache2
 sudo a2enmod proxy
 sudo a2enmod proxy_http
-
+=> Re-directing port 80 to port 8080
 => /etc/apache2/sites-available/jenkins.conf
 <VirtualHost *:80>
 	ServerName HOSTNAME
