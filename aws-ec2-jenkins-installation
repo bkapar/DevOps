@@ -1,0 +1,40 @@
+== INSTALLING JENKINS IN EC2 UBUNTU 10.* 
+
+=> Install Java 8 (Jenkins only support java8)
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update
+sudo apt-get install openjdk-8-jdk
+java -version
+
+wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
+
+=> Then add the following entry in your /etc/apt/sources.list:
+
+deb https://pkg.jenkins.io/debian binary/
+OR
+sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+sudo apt-get update
+sudo apt-get install jenkins
+
+=> Installing Apache
+
+sudo apt-get install apache2
+sudo a2enmod proxy
+sudo a2enmod proxy_http
+
+=> /etc/apache2/sites-available/jenkins.conf
+<VirtualHost *:80>
+	ServerName HOSTNAME
+	ProxyRequests Off
+	<Proxy *>
+		Order deny,allow
+		Allow from all
+	</Proxy>
+	ProxyPreserveHost on
+	ProxyPass / http://localhost:8080/
+</VirtualHost>
+
+=> Enabling jenkins.conf
+sudo a2ensite jenkins
+sudo service apache2 reload
+=> On brower type: http://http://ec2-54-215-171-230.us-west-1.compute.amazonaws.com/
