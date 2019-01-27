@@ -1,0 +1,61 @@
+=> Step by step Ansible install, setup, configure in AWS EC2 instances... 
+
+=> Add a EPEL (Extra Packages for Enterprise Linux)third party repository to get packages for Ansible
+rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+=> Install Ansible
+yum install ansible -y
+=>Check Ansible version
+ansible --version
+=>Create a new user for ansible administration & grant admin access to user (Master and Slave)
+useradd ansadmin
+passwd ansadmin
+
+=> below command addes ansadmin to sudoers file. But strongly recommended to use "visudo" command if you are aware vi or nano editor. 
+=> Under visudo add the user all the way button of the file
+ansmaster	ALL=(ALL)	NOPASSWD: ALL 
+OR
+echo "ansadmin ALL=(ALL) ALL" >> /etc/sudoers
+
+=> Using keybased authentication is advised. If you are still at learning stage use password based authentication (Master & Slave)
+=>  sed command replaces "PasswordAuthentication no to yes" without editing file 
+=> Under file /etc/ssh/sshd_config
+Uncomment entry PasswordAuthentication yes and comment entry: PasswordAuthentication no (All Ansible master and client each host)
+OR
+ sed -ie 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+ 
+=>Login as a ansadmin user on master and generate ssh key (Master)
+ssh-keygen
+Copy keys onto all ansible client nodes from (Master)
+ssh-copy-id <target-server>
+=>Update target servers information on /etc/ansible/hosts file (Master)
+
+[ansadmin@ip-172-31-15-206 myplatform]$ cat hosts
+[all]
+ec2-54-193-107-39.us-west-1.compute.amazonaws.com
+Ec2-13-57-19-141.us-west-1.compute.amazonaws.com
+OR
+echo "<target server IP>" > /etc/ansible/hosts
+
+=> Run ansible command as ansadmin user it should be successful (Master)
+ansible all -m ping
+[ansadmin@ip-172-31-15-206 myplatform]$ ansible -m ping all
+ec2-54-193-107-39.us-west-1.compute.amazonaws.com | SUCCESS => {
+    "changed": false, 
+    "ping": "pong"
+}
+ec2-13-57-19-141.us-west-1.compute.amazonaws.com | SUCCESS => {
+    "changed": false, 
+    "ping": "pong"
+}
+=> Now we can do basic task as following its cammand called ad-hocl shell command 
+[ansadmin@ip-172-31-15-206 myplatform]$ ansible -m shell -a 'hostname' all
+[ansadmin@ip-172-31-15-206 myplatform]$ ansible -m shell -a 'df -h' all
+
+=> If you want add user  need become root then need to to following (where -b is root, -K is to ask root passwd)
+[ansadmin@ip-172-31-15-206 myplatform]$ ansible -b -K -m user -a 'name=testuser' all
+SUDO password: 
+[ansadmin@ip-172-31-15-206 myplatform]$
+
+
+
