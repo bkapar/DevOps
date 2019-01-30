@@ -58,4 +58,32 @@ SUDO password:
 [ansadmin@ip-172-31-15-206 myplatform]$
 
 
+#What is Roll and Playbook.
+=>Roll: Roll is just list of commands and Ansible give order to execute them in Target machine. 
+=>Playbook:  Identify which is apply to which Target machine. 
+mkdir roles/basic/task then
+vi main.yml
+ - name: ‘Installing VIM’
+ - apt:  pkg=vim state=installed
+Wq!
+
+
+[ansadmin@ip-172-31-15-206 tasks]$ cat main.yml 
+- name: 'Install VIM'
+ yum : pkg=vim state=installed
+[ansadmin@ip-172-31-15-206 tasks]$ 
+
+# If you want to install other pkg then simple edit the content
+
+=> Create playbook file then add these lines
+
+[ansadmin@ip-172-31-8-250  myplatfarm]$ vi playbook.yml
+
+[ansadmin@ip-172-31-15-206 myplatform]$ cat playbook.yml 
+---
+-  hosts: all
+   become: true
+   roles:
+   - basic
+[ansadmin@ip-172-31-15-206 myplatform]$ 
 
