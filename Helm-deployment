@@ -1,0 +1,191 @@
+# Getting Started with Helm Chart
+- Helm charts are configuration ymls which are used for managing the Kubernetes resources.
+- In this article, we will start from very basic -
+
+General Deployment:
+- Setup Kubernetes Cluster
+- Create deployment.yaml 
+- Create service.yaml
+-Create service-account.yaml
+VS
+Helm:
+- Setup Kubernetes Cluster
+- Create Helm Chart
+- Fill in the values.yaml
+- Run - $helm install
+
+
+# Table of Content
+- Install Helm Chart
+- Writing your first Helm Chart for Hello World
+- Helm: Adding upstream repositories
+# 1. Install Helm Chart:
+brew install helm 
+
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ helm version
+version.BuildInfo{Version:"v3.7.0", GitCommit:"eeac83883cb4014fe60267ec6373570374ce770b", GitTreeState:"clean", GoVersion:"go1.17"}
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$
+
+# 2.  Writing your first Helm Chart for Hello World
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ helm create hello-world
+Creating hello-world
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ ls -lart | grep hello-world/
+drwxr-xr-x  7 bkapar  110264759   224B Oct  5 15:27 hello-world/
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ 
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ tree hello-world
+hello-world
+├── Chart.yaml
+├── charts
+├── templates
+│   ├── NOTES.txt
+│   ├── _helpers.tpl
+│   ├── deployment.yaml
+│   ├── hpa.yaml
+│   ├── ingress.yaml
+│   ├── service.yaml
+│   ├── serviceaccount.yaml
+│   └── tests
+│       └── test-connection.yaml
+└── values.yaml
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm/helloworld$ ls
+Chart.yaml   charts/    templates/   values.yaml
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm/helloworld$ 
+
+# we need to update the service.type from ClusterIP to NodePort inside the values.yml
+service:
+  type: NodePort
+  port: 80
+
+# Now after updating the values.yml, you can install the Helm Chart.
+- Note : The helm install command take two arguments -
+
+- First argument - Release name that you pick
+- Second argument - Chart you want to install
+helm install <FIRST_ARGUMENT_RELEASE_NAME> <SECOND_ARGUMENT_CHART_NAME>
+
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ helm install myhelloworld helloworld
+NAME: myhelloworld
+LAST DEPLOYED: Tue Oct  5 16:09:10 2021
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+NOTES:
+1. Get the application URL by running these commands:
+  export NODE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services myhelloworld)
+  export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ 
+
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm/helloworld$ helm list -a  #verify helm install cmd
+NAME        	NAMESPACE	REVISION	UPDATED                             	STATUS  	CHART           	APP VERSION
+myhelloworld	default  	1       	2021-10-05 16:09:10.275456 -0700 PDT	deployed	helloworld-0.1.0	1.16.0     
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm/helloworld$ 
+
+# Lets run the kubectl get service command to get the NodePort.
+
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm/helloworld$ kubectl get service 
+NAME           TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+kubernetes     ClusterIP   10.96.0.1        <none>        443/TCP        6d
+myhelloworld   NodePort    10.111.58.236    <none>        80:32593/TCP   85m
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm/helloworld$ 
+
+# Note: Keep in mind the NodePort number can vary in the range 30000-32767, so you might get different NodePort.
+
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm/helloworld$ minikube ssh
+Last login: Mon Oct  4 15:51:32 2021 from 192.168.49.1
+docker@minikube:~$ 
+docker@minikube:~$ curl http://192.168.49.2:32593
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+docker@minikube:~$ hostname -i
+192.168.49.2
+docker@minikube:~$ 
+
+# Now let's Helm which can be used for install, add,list,remove,update,index the chart repository.
+add : Add chart repository
+list : List chart repository
+update : Update the chart information locally
+index : For generating the index file
+
+- For Example - You want to deploy Redis in-memory cache inside your kubernetes cluster from Helm repository, so you can simply run the following command -
+
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm/helloworld$ helm install redis bitnami/redis
+
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ helm search repo bitnami  
+NAME                            	CHART VERSION	APP VERSION  	DESCRIPTION                                       
+bitnami/bitnami-common          	0.0.8        	0.0.8        	Chart with custom templates used in Bitnami cha...
+bitnami/airflow                 	6.7.1        	1.10.12      	Apache Airflow 
+
+# 
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ helm repo add bitnami https://charts.bitnami.com/bitnami
+"bitnami" has been added to your repositories
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ 
+
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ helm repo list
+NAME   	URL                               
+bitnami	https://charts.bitnami.com/bitnami
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ 
+
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ helm repo update
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ 
+
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ tree helloworld/
+helloworld/
+├── Chart.yaml
+├── charts
+├── index.yaml
+├── templates
+│   ├── NOTES.txt
+│   ├── _helpers.tpl
+│   ├── deployment.yaml
+│   ├── hpa.yaml
+│   ├── ingress.yaml
+│   ├── service.yaml
+│   ├── serviceaccount.yaml
+│   └── tests
+│       └── test-connection.yaml
+└── values.yaml
+
+3 directories, 11 files
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ 
+
+
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ helm repo remove bitnami
+"bitnami" has been removed from your repositories
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ 
+
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ helm repo list
+Error: no repositories to show
+(⎈ |minikube:default)bkapar@LM-SJC-11024580:~/minikube/helm$ 
+
+
+
+
+
