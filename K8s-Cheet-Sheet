@@ -1,0 +1,548 @@
+#Getting Started:
+==============CREATE ===============
+#Cluster Role
+kubectl create clusterrole pod-reader --verb=get,list,watch --resource=pods
+#Create a cluster role named "pod-reader" with ResourceName specified
+kubectl create clusterrole pod-reader --verb=get --resource=pods --resource-name=readablepod --resource-name=anotherpod
+
+#Cluster-role Binding
+Create a cluster role binding for user1, user2, and group1 using the cluster-admin cluster role
+kubectl create clusterrolebinding cluster-admin --clusterrole=cluster-admin --user=user1 --user=user2 --group=group1
+
+#ConfigMap
+Create a new config map named my-config based on folder bar
+kubectl create configmap my-config --from-file=path/to/bar
+Create a new config map named my-config with specified keys instead of file basenames on disk
+kubectl create configmap my-config --from-file=key1=/path/to/bar/file1.txt --from-file=key2=/path/to/bar/file2.txt
+
+#Cron Job
+Create a cron job
+kubectl create cronjob my-job --image=busybox --schedule="*/1 * * * *"
+Create a cron job with a command
+kubectl create cronjob my-job --image=busybox --schedule="*/1 * * * *" -- date
+
+#Deployment
+Create a deployment named my-dep that runs the busybox image
+kubectl create deployment my-dep --image=busybox
+
+Create a deployment with a command
+kubectl create deployment my-dep --image=busybox -- date
+
+Create a deployment named my-dep that runs the nginx image with 3 replicas
+kubectl create deployment my-dep --image=nginx --replicas=3
+
+Create a deployment named my-dep that runs the busybox image and expose port 5701
+kubectl create deployment my-dep --image=busybox --port=5701
+
+#Ingress
+Create a single ingress called 'simple' that directs requests to foo.com/bar to svc # svc1:8080 with a tls secret "my-cert"
+kubectl create ingress simple --rule="foo.com/bar=svc1:8080,tls=my-cert"
+Create a catch all ingress of "/path" pointing to service svc:port and Ingress Class as "otheringress"
+kubectl create ingress catch-all --class=otheringress --rule="/path=svc:port"
+
+#Job
+Create a job
+kubectl create job my-job --image=busybox
+Create a job with a command
+kubectl create job my-job --image=busybox -- date
+
+#Namespace
+Create a new namespace named my-namespace
+kubectl create namespace my-namespace
+
+#Pod Disruption Budget (PDB)
+Create a pod disruption budget named my-pdb that will select all pods with the app=rails label # and require at least one of them being available at any point in time
+kubectl create poddisruptionbudget my-pdb --selector=app=rails --min-available=1
+
+Create a pod disruption budget named my-pdb that will select all pods with the app=nginx label # and require at least half of the pods selected to be available at any point in time
+kubectl create pdb my-pdb --selector=app=nginx --min-available=50%
+
+#Quota
+Create a new resource quota named my-quota
+kubectl create quota my-quota --hard=cpu=1,memory=1G,pods=2,services=3,replicationcontrollers=2,resourcequotas=1,secrets=5,persistentvolumeclaims=10
+Create a new resource quota named best-effort
+kubectl create quota best-effort --hard=pods=100 --scopes=BestEffort
+
+#Role
+create a role named "pod-reader" that allows user to perform "get", "watch" and "list" on pods
+kubectl create role pod-reader --verb=get --verb=list --verb=watch --resource=pods
+Create a role named "pod-reader" with ResourceName specified
+kubectl create role pod-reader --verb=get --resource=pods --resource-name=readablepod --resource-name=anotherpod
+
+#Role Binding
+Create a role binding for user1, user2, and group1 using the admin cluster role
+kubectl create rolebinding admin --clusterrole=admin --user=user1 --user=user2 --group=group1
+
+#Secret
+If you don't already have a .dockercfg file, you can create a dockercfg secret directly by using:
+kubectl create secret docker-registry my-secret --docker-server=DOCKER_REGISTRY_SERVER --docker-username=DOCKER_USER --docker-password=DOCKER_PASSWORD --docker-email=DOCKER_EMAIL
+Create a new secret named my-secret from ~/.docker/config.json
+
+kubectl create secret docker-registry my-secret --from-file=.dockerconfigjson=path/to/.docker/config.json
+Create a new secret for use with Docker registries.
+
+#Secret docker-registry
+If you don't already have a .dockercfg file, you can create a dockercfg secret directly by using:
+kubectl create secret docker-registry my-secret --docker-server=DOCKER_REGISTRY_SERVER --docker-username=DOCKER_USER --docker-password=DOCKER_PASSWORD --docker-email=DOCKER_EMAIL
+
+#Secret Generic
+Create a new secret named my-secret with keys for each file in folder bar
+kubectl create secret generic my-secret --from-file=path/to/bar
+
+Create a new secret named my-secret with specified keys instead of names on disk
+kubectl create secret generic my-secret --from-file=ssh-privatekey=path/to/id_rsa --from-file=ssh-publickey=path/to/id_rsa.pub
+
+#Secret TLS
+Create a new TLS secret named tls-secret with the given key pair
+kubectl create secret tls tls-secret --cert=path/to/tls.cert --key=path/to/tls.key
+
+#Service
+Create a new ClusterIP service named my-cs
+kubectl create service clusterip my-cs --tcp=5678:8080
+
+Create a new ClusterIP service named my-cs (in headless mode)
+kubectl create service clusterip my-cs --clusterip="None"
+
+#Service clusterip
+Create a new ClusterIP service named my-cs
+kubectl create service clusterip my-cs --tcp=5678:8080
+
+Create a new ClusterIP service named my-cs (in headless mode)
+kubectl create service clusterip my-cs --clusterip="None"
+
+#Service ExternalName
+Create a new ExternalName service named my-ns
+kubectl create service externalname my-ns --external-name bar.com
+
+#Service LoadBalancer
+Create a new LoadBalancer service named my-lbs
+kubectl create service loadbalancer my-lbs --tcp=5678:8080
+
+#Service Nodeport
+Create a new NodePort service named my-ns
+kubectl create service nodeport my-ns --tcp=5678:8080
+
+#Service Account
+Create a new service account named my-service-account
+kubectl create serviceaccount my-service-account
+
+
+Get
+Create a new service account named my-service-account
+kubectl create serviceaccount my-service-account
+
+#Run
+#Start a nginx pod
+kubectl run nginx --image=nginx
+Start a hazelcast pod and let the container expose port 5701
+
+kubectl run hazelcast --image=hazelcast/hazelcast --port=5701
+Start a hazelcast pod and set environment variables "DNS_DOMAIN=cluster" and "POD_NAMESPACE=default" in the container
+
+kubectl run hazelcast --image=hazelcast/hazelcast --env="DNS_DOMAIN=cluster" --env="POD_NAMESPACE=default"
+Start a hazelcast pod and set labels "app=hazelcast" and "env=prod" in the container
+
+kubectl run hazelcast --image=hazelcast/hazelcast --labels="app=hazelcast,env=prod"
+Dry run; print the corresponding API objects without creating them
+
+kubectl run nginx --image=nginx --dry-run=client
+Start a nginx pod, but overload the spec with a partial set of values parsed from JSON
+
+kubectl run nginx --image=nginx --overrides='{ "apiVersion": "v1", "spec": { ... } }'
+Start a busybox pod and keep it in the foreground, don't restart it if it exits
+
+kubectl run -i -t busybox --image=busybox --restart=Never
+
+#Expose
+Create a service for a replicated nginx, which serves on port 80 and connects to the containers on port 8000
+kubectl expose rc nginx --port=80 --target-port=8000
+
+Create a service for a replication controller identified by type and name specified in "nginx-controller.yaml", which serves on port 80 and connects to the containers on port 8000
+kubectl expose -f nginx-controller.yaml --port=80 --target-port=8000
+
+Create a service for a pod valid-pod, which serves on port 444 with the name "frontend"
+kubectl expose pod valid-pod --port=444 --name=frontend
+
+Create a second service based on the above service, exposing the container port 8443 as port 443 with the name "nginx-https"
+kubectl expose service nginx --port=443 --target-port=8443 --name=nginx-https
+
+Create a service for a replicated streaming application on port 4100 balancing UDP traffic and named 'video-stream'.
+kubectl expose rc streamer --port=4100 --protocol=UDP --name=video-stream
+
+Create a service for a replicated nginx using replica set, which serves on port 80 and connects to the containers on port 8000
+kubectl expose rs nginx --port=80 --target-port=8000
+
+Create a service for an nginx deployment, which serves on port 80 and connects to the containers on port 8000
+kubectl expose deployment nginx --port=80 --target-port=8000
+
+#Delete
+Delete a pod using the type and name specified in pod.json
+kubectl delete -f ./pod.json
+
+Delete resources from a directory containing kustomization.yaml - e.g. dir/kustomization.yaml
+kubectl delete -k dir
+
+Delete a pod based on the type and name in the JSON passed into stdin
+cat pod.json | kubectl delete -f -
+
+Delete pods and services with same names "baz" and "foo"
+kubectl delete pod,service baz foo
+
+Delete pods and services with label name=myLabel
+kubectl delete pods,services -l name=myLabel
+
+Delete a pod with minimal delay
+kubectl delete pod foo --now
+
+Force delete a pod on a dead node
+kubectl delete pod foo --force
+
+Delete all pods
+kubectl delete pods --all
+
+
+#APP MANAGEMENT
+#Apply
+edit-last-applied
+Edit the last-applied-configuration annotations by type/name in YAML
+kubectl apply edit-last-applied deployment/nginx
+
+set-last-applied
+Set the last-applied-configuration of a resource to match the contents of a file
+kubectl apply set-last-applied -f deploy.yaml
+
+view-last-applied
+View the last-applied-configuration annotations by type/name in YAML
+kubectl apply view-last-applied deployment/nginx
+
+#Annotate
+Update pod 'foo' with the annotation 'description' and the value 'my frontend' # If the same annotation is set multiple times, only the last value will be applied
+kubectl annotate pods foo description='my frontend'
+
+Update a pod identified by type and name in "pod.json"
+kubectl annotate -f pod.json description='my frontend'
+
+#AutoScale:
+Auto scale a deployment "foo", with the number of pods between 2 and 10, no target CPU utilization specified so a default autoscaling policy will be used
+kubectl autoscale deployment foo --min=2 --max=10
+
+Auto scale a replication controller "foo", with the number of pods between 1 and 5, target CPU utilization at 80%
+kubectl autoscale rc foo --max=5 --cpu-percent=80
+
+#Debug
+Create an interactive debugging session in pod mypod and immediately attach to it. # (requires the EphemeralContainers feature to be enabled in the cluster)
+kubectl debug mypod -it --image=busybox
+Create a debug container named debugger using a custom automated debugging image. # (requires the EphemeralContainers feature to be enabled in the cluster)
+kubectl debug --image=myproj/debug-tools -c debugger mypod
+
+#Diff
+Diff resources included in pod.json
+kubectl diff -f pod.json
+Diff file read from stdin
+cat service.yaml | kubectl diff -f -
+
+#Edit
+Edit the service named 'docker-registry'
+kubectl edit svc/docker-registry
+Use an alternative editor
+KUBE_EDITOR="nano" kubectl edit svc/docker-registry
+Edit the job 'myjob' in JSON using the v1 API format
+kubectl edit job.v1.batch/myjob -o json
+Edit the deployment 'mydeployment' in YAML and save the modified config in its annotation
+kubectl edit deployment/mydeployment -o yaml --save-config
+
+#Label
+Update pod 'foo' with the label 'unhealthy' and the value 'true'
+kubectl label pods foo unhealthy=true
+
+Update pod 'foo' with the label 'status' and the value 'unhealthy', overwriting any existing value
+kubectl label --overwrite pods foo status=unhealthy
+
+Update all pods in the namespace
+kubectl label pods --all status=unhealthy
+
+Update a pod identified by the type and name in "pod.json"
+kubectl label -f pod.json status=unhealthy
+
+Update pod 'foo' only if the resource is unchanged from version 1
+kubectl label pods foo status=unhealthy --resource-version=1
+
+Update pod 'foo' by removing a label named 'bar' if it exists # Does not require the --overwrite flag
+kubectl label pods foo bar-
+
+
+#Replace
+Replace a pod using the data in pod.json
+kubectl replace -f ./pod.json
+
+Replace a pod based on the JSON passed into stdin
+cat pod.json | kubectl replace -f -
+
+#ROLL-OUT
+history
+View the rollout history of a deployment
+kubectl rollout history deployment/abc
+View the details of daemonset revision 3
+kubectl rollout history daemonset/abc --revision=3
+
+#Pause
+Mark the nginx deployment as paused # Any current state of the deployment will continue its function; new updates # to the deployment will not have an effect as long as the deployment is paused
+kubectl rollout pause deployment/nginx
+
+#Restart
+Restart a deployment
+kubectl rollout restart deployment/nginx
+
+Restart a daemon set
+kubectl rollout restart daemonset/abc
+
+#Resume
+Resume an already paused deployment
+kubectl rollout resume deployment/nginx
+
+#Status
+Watch the rollout status of a deployment
+kubectl rollout status deployment/nginx
+
+#Undo
+Roll back to the previous deployment
+kubectl rollout undo deployment/abc
+
+Roll back to daemonset revision 3
+kubectl rollout undo daemonset/abc --to-revision=3
+
+Roll back to the previous deployment with dry-run
+kubectl rollout undo --dry-run=server deployment/abc
+
+#Scale:
+Scale a replica set named 'foo' to 3
+kubectl scale --replicas=3 rs/foo
+
+Scale a resource identified by type and name specified in "foo.yaml" to 3
+kubectl scale --replicas=3 -f foo.yaml
+
+If the deployment named mysql's current size is 2, scale mysql to 3
+kubectl scale --current-replicas=2 --replicas=3 deployment/mysql
+
+Scale multiple replication controllers
+kubectl scale --replicas=5 rc/foo rc/bar rc/baz
+
+Scale stateful set named 'web' to 3
+kubectl scale --replicas=3 statefulset/web
+
+#set
+#env
+Update deployment 'registry' with a new environment variable
+kubectl set env deployment/registry STORAGE_DIR=/local
+
+List the environment variables defined on a deployments 'sample-build'
+kubectl set env deployment/sample-build --list
+
+List the environment variables defined on all pods
+kubectl set env pods --all --list
+
+#Image
+Set a deployment's nginx container image to 'nginx:1.9.1', and its busybox container image to 'busybox'
+kubectl set image deployment/nginx busybox=busybox nginx=nginx:1.9.1
+
+Update all deployments' and rc's nginx container's image to 'nginx:1.9.1'
+kubectl set image deployments,rc nginx=nginx:1.9.1 --all
+
+#Resources
+Set a deployments nginx container cpu limits to "200m" and memory to "512Mi"
+kubectl set resources deployment nginx -c=nginx --limits=cpu=200m,memory=512Mi
+
+Set the resource request and limits for all containers in nginx
+kubectl set resources deployment nginx --limits=cpu=200m,memory=512Mi --requests=cpu=100m,memory=256Mi
+
+#Selector
+Set the labels and selector before creating a deployment/service pair
+kubectl create service clusterip my-svc --clusterip="None" -o yaml --dry-run=client | kubectl set selector --local -f - 'environment=qa' -o yaml | kubectl create -f -
+
+kubectl create deployment my-dep -o yaml --dry-run=client | kubectl label --local -f - environment=qa -o yaml | kubectl create -f -
+
+#ServiceAccount
+Set deployment nginx-deployment's service account to serviceaccount1
+kubectl set serviceaccount deployment nginx-deployment serviceaccount1
+
+Print the result (in YAML format) of updated nginx deployment with the service account from local file, without hitting the API server
+kubectl set sa -f nginx-deployment.yaml serviceaccount1 --local --dry-run=client -o yaml
+
+===============WORKING WITH APPS==============
+# for selecting the container to be attached or the first container in the pod will be chosen
+kubectl attach mypod
+Get output from ruby-container from pod mypod
+kubectl attach mypod -c ruby-container
+
+#Auth
+can-i
+Check to see if I can create pods in any namespace
+kubectl auth can-i create pods --all-namespaces
+
+Check to see if I can list deployments in my current namespace
+kubectl auth can-i list deployments.apps
+
+Check to see if I can do everything in my current namespace ("*" means all)
+kubectl auth can-i '*' '*'
+
+reconcile
+Reconcile RBAC resources from a file
+kubectl auth reconcile -f my-rbac-rules.yaml
+
+#CP
+tar cf - /tmp/foo | kubectl exec -i -n <some-namespace> <some-pod> -- tar xf - -C /tmp/bar
+Copy /tmp/foo from a remote pod to /tmp/bar locally
+
+kubectl exec -n <some-namespace> <some-pod> -- tar cf - /tmp/foo | tar xf - -C /tmp/bar
+Copy /tmp/foo_dir local directory to /tmp/bar_dir in a remote pod in the default namespace
+
+kubectl cp /tmp/foo_dir <some-pod>:/tmp/bar_dir
+
+#Describe
+Describe a node
+kubectl describe nodes kubernetes-node-emt8.c.myproject.internal
+Describe a pod
+kubectl describe pods/nginx
+
+#Exec
+Get output from running the 'date' command from pod mypod, using the first container by default
+kubectl exec mypod -- date
+
+Get output from running the 'date' command in ruby-container from pod mypod
+kubectl exec mypod -c ruby-container -- date
+
+Switch to raw terminal mode; sends stdin to 'bash' in ruby-container from pod mypod # and sends stdout/stderr from 'bash' back to the client
+kubectl exec mypod -c ruby-container -i -t -- bash -il
+
+
+#Logs:
+Return snapshot logs from pod nginx with only one container
+kubectl logs nginx
+
+Return snapshot logs from pod nginx with multi containers
+kubectl logs nginx --all-containers=true
+
+Return snapshot logs from all containers in pods defined by label app=nginx
+kubectl logs -l app=nginx --all-containers=true
+
+Return snapshot of previous terminated ruby container logs from pod web-1
+kubectl logs -p -c ruby web-1
+
+Begin streaming the logs of the ruby container in pod web-1
+kubectl logs -f -c ruby web-1
+
+Begin streaming the logs from all containers in pods defined by label app=nginx
+kubectl logs -f -l app=nginx --all-containers=true
+
+Display only the most recent 20 lines of output in pod nginx
+kubectl logs --tail=20 nginx
+
+#Port-Forward:
+Listen on ports 5000 and 6000 locally, forwarding data to/from ports 5000 and 6000 in the pod
+kubectl port-forward pod/mypod 5000 6000
+
+Listen on ports 5000 and 6000 locally, forwarding data to/from ports 5000 and 6000 in a pod selected by the deployment
+kubectl port-forward deployment/mydeployment 5000 6000
+
+Listen on port 8443 locally, forwarding to the targetPort of the service's port named "https" in a pod selected by the service
+kubectl port-forward service/myservice 8443:https
+
+Listen on port 8888 locally, forwarding to 5000 in the pod
+kubectl port-forward pod/mypod 8888:5000
+
+Listen on port 8888 on all addresses, forwarding to 5000 in the pod
+kubectl port-forward --address 0.0.0.0 pod/mypod 8888:5000
+
+Listen on port 8888 on localhost and selected IP, forwarding to 5000 in the pod
+kubectl port-forward --address localhost,10.19.21.23 pod/mypod 8888:5000
+
+Listen on a random port locally, forwarding to 5000 in the pod
+kubectl port-forward pod/mypod :5000
+
+#Proxy:
+To proxy all of the Kubernetes API and nothing else
+kubectl proxy --api-prefix=/
+
+To proxy only part of the Kubernetes API and also some static files # You can get pods info with 'curl localhost:8001/api/v1/pods'
+kubectl proxy --www=/my/files --www-prefix=/static/ --api-prefix=/api/
+
+To proxy the entire Kubernetes API at a different root # You can get pods info with 'curl localhost:8001/custom/api/v1/pods'
+kubectl proxy --api-prefix=/custom/
+
+#TOP
+Show metrics for all pods in the default namespace
+kubectl top pod
+
+Show metrics for all pods in the given namespace
+kubectl top pod --namespace=NAMESPACE
+
+Show metrics for a given pod and its containers
+kubectl top pod POD_NAME --containers
+
+Show metrics for the pods defined by label name=myLabel
+kubectl top pod -l name=myLabel
+
+===========KUBECTL SETTINGS AND USAGE==========
+
+#api-resources
+Print the supported API resources
+kubectl api-resources
+
+Print the supported API resources with more information
+kubectl api-resources -o wide
+
+Print the supported API resources sorted by a column
+kubectl api-resources --sort-by=name
+
+Print the supported namespaced resources
+kubectl api-resources --namespaced=true
+
+#Config
+#current-context
+Display the current-context
+kubectl config current-context
+
+#delete-cluster
+Delete the minikube cluster
+kubectl config delete-cluster minikube
+
+#delete-context
+Delete the context for the minikube cluster
+kubectl config delete-context minikube
+
+#delete-user
+Delete the minikube user
+kubectl config delete-user minikube
+
+#get-clusters
+Describe one context in your kubeconfig file
+get-contexts
+kubectl config get-contexts my-context
+
+#get-users
+List the users that kubectl knows about
+kubectl config get-users
+rename-context
+
+#set
+#set-cluster
+Show merged kubeconfig settings
+kubectl config view
+Show merged kubeconfig settings and raw certificate data
+kubectl config view --raw
+
+set-context
+#set-credentials
+Set only the "client-key" field on the "cluster-admin" # entry, without touching other values
+kubectl config set-credentials cluster-admin --client-key=~/.kube/admin.key
+
+#unset
+nset the current-context
+kubectl config unset current-context
+
+#use-context
+Set the user field on the gce context entry without touching other values
+kubectl config set-context gce --user=cluster-admin
+Use the context for the minikube cluster
+
+kubectl config use-context minikube
